@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "SensorReading": {
+      "title": "SensorReading",
+      "description": "Historical telemetry record from the soil moisture, DHT11, and rain sensors with water pump status",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the reading",
+          "maxLength": 128
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Epoch timestamp in milliseconds"
+        },
+        "timeLabel": {
+          "type": "string",
+          "description": "Human-readable time string (HH:MM:SS)",
+          "maxLength": 32
+        },
+        "soilMoisture": {
+          "type": "number",
+          "description": "Volumetric water content percentage (0-100)"
+        },
+        "dhtTemp": {
+          "type": "number",
+          "description": "Ambient temperature measured in Celsius"
+        },
+        "dhtHumidity": {
+          "type": "number",
+          "description": "Relative atmospheric humidity percentage (0-100)"
+        },
+        "rainSensor": {
+          "type": "boolean",
+          "description": "Indicates whether rain/water was detected on the sensor plate"
+        },
+        "rainAnalog": {
+          "type": "number",
+          "description": "Raw ADC analog value from rain sensor module (0-1023)"
+        },
+        "pumpActive": {
+          "type": "boolean",
+          "description": "Status of the irrigation water pump at the moment of reading"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp when the document was persisted"
+        }
+      },
+      "required": [
+        "id",
+        "timestamp",
+        "timeLabel",
+        "soilMoisture",
+        "dhtTemp",
+        "dhtHumidity",
+        "rainSensor",
+        "rainAnalog",
+        "pumpActive"
+      ]
+    }
+  },
+  "firestore": {
+    "/sensor_readings/{readingId}": {
+      "schema": "SensorReading",
+      "description": "Time-series collection of telemetry records recorded by the AgroPulse station"
+    }
+  }
+}

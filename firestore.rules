@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidSensorReading(data) {
+      return data.keys().hasAll([
+        'id',
+        'timestamp',
+        'timeLabel',
+        'soilMoisture',
+        'dhtTemp',
+        'dhtHumidity',
+        'rainSensor',
+        'rainAnalog',
+        'pumpActive'
+      ]) &&
+      data.keys().hasOnly([
+        'id',
+        'timestamp',
+        'timeLabel',
+        'soilMoisture',
+        'dhtTemp',
+        'dhtHumidity',
+        'rainSensor',
+        'rainAnalog',
+        'pumpActive',
+        'batteryLevel',
+        'batteryVoltage',
+        'createdAt'
+      ]) &&
+      data.id is string && data.id.size() <= 128 &&
+      data.timestamp is number && data.timestamp > 0 &&
+      data.timeLabel is string && data.timeLabel.size() <= 32 &&
+      data.soilMoisture is number && data.soilMoisture >= 0 && data.soilMoisture <= 100 &&
+      data.dhtTemp is number && data.dhtTemp >= -40 && data.dhtTemp <= 85 &&
+      data.dhtHumidity is number && data.dhtHumidity >= 0 && data.dhtHumidity <= 100 &&
+      data.rainSensor is bool &&
+      data.rainAnalog is number && data.rainAnalog >= 0 && data.rainAnalog <= 1023 &&
+      data.pumpActive is bool &&
+      (!('batteryLevel' in data) || (data.batteryLevel is number && data.batteryLevel >= 0 && data.batteryLevel <= 100)) &&
+      (!('batteryVoltage' in data) || (data.batteryVoltage is number && data.batteryVoltage >= 0 && data.batteryVoltage <= 24)) &&
+      (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 64));
+    }
+
+    // Test collection for verifying Firestore connectivity
+    match /test/{testId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Telemetry sensor readings collection
+    match /sensor_readings/{readingId} {
+      allow get, list: if true;
+      allow create: if isValidId(readingId) &&
+                       isValidSensorReading(incoming()) &&
+                       incoming().id == readingId;
+      allow update, delete: if false;
+    }
+  }
+}

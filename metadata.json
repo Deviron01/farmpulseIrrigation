@@ -1,0 +1,6 @@
+{
+  "name": "TerraPulse Soil Telemetry Monitor",
+  "description": "Real-time environmental monitoring dashboard tracking soil moisture, DHT11 temperature and humidity, rain sensor, and water pump controls with Firestore persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
